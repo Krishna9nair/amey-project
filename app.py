@@ -42,7 +42,9 @@ DEPARTMENTS = [
 YEARS = ["First Year", "Second Year", "Third Year", "Final Year"]
 ALLOWED_EMAIL_DOMAIN = "student.mes.ac.in"
 HOME_ENDPOINTS = {"admin": "admin_dashboard", "club_admin": "club_admin_dashboard", "student": "dashboard"}
-DEFAULT_CLUB_ADMIN_PASSWORD = "club123"
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "admin@mes.ac.in")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
+DEFAULT_CLUB_ADMIN_PASSWORD = os.environ.get("CLUB_ADMIN_PASSWORD", "club123")
 
 
 def is_college_email(email):
@@ -103,7 +105,7 @@ def init_db():
     if db.execute("SELECT COUNT(*) FROM users WHERE role = 'admin'").fetchone()[0] == 0:
         db.execute(
             "INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, 'admin')",
-            ("Administrator", "admin@mes.ac.in", generate_password_hash("admin123")),
+            ("Administrator", ADMIN_EMAIL, generate_password_hash(ADMIN_PASSWORD)),
         )
 
     if db.execute("SELECT COUNT(*) FROM clubs").fetchone()[0] == 0:
