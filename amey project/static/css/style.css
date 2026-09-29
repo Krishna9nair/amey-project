@@ -1,0 +1,207 @@
+:root {
+    --brand: #4f46e5;
+    --brand-dark: #3730a3;
+    --accent: #ec4899;
+}
+
+body {
+    background: #f5f6fb;
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    letter-spacing: .5px;
+}
+
+.bg-brand {
+    background: linear-gradient(90deg, var(--brand-dark), var(--brand));
+}
+
+.btn-brand {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: #fff;
+}
+
+.btn-brand:hover,
+.btn-brand:focus {
+    background: var(--brand-dark);
+    border-color: var(--brand-dark);
+    color: #fff;
+}
+
+.text-brand {
+    color: var(--brand) !important;
+}
+
+/* Hero */
+.hero {
+    background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand) 55%, var(--accent) 100%);
+    color: #fff;
+    padding: 5rem 0 6rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::after {
+    content: "";
+    position: absolute;
+    width: 420px;
+    height: 420px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .08);
+    right: -120px;
+    top: -120px;
+}
+
+.hero h1 {
+    font-weight: 800;
+}
+
+.page-header {
+    background: linear-gradient(135deg, var(--brand-dark), var(--brand));
+    color: #fff;
+    padding: 2.5rem 0;
+    margin-bottom: 2rem;
+}
+
+/* Stats */
+.stats-row {
+    margin-top: -3rem;
+    position: relative;
+    z-index: 2;
+}
+
+.stat-card {
+    border: 0;
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px rgba(79, 70, 229, .12);
+}
+
+.stat-card .stat-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    background: rgba(79, 70, 229, .1);
+    color: var(--brand);
+}
+
+/* Cards */
+.hover-card {
+    border: 0;
+    border-radius: 1rem;
+    transition: transform .2s ease, box-shadow .2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .05);
+}
+
+.hover-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, .1);
+}
+
+.club-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    color: #fff;
+    background: linear-gradient(135deg, var(--brand), var(--accent));
+}
+
+.date-badge {
+    min-width: 64px;
+    text-align: center;
+    border-radius: .75rem;
+    background: rgba(79, 70, 229, .1);
+    color: var(--brand);
+    padding: .4rem .5rem;
+    line-height: 1.1;
+}
+
+.date-badge .day {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.date-badge .month {
+    font-size: .75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.seat-progress {
+    height: 6px;
+}
+
+/* Auth */
+.auth-card {
+    max-width: 480px;
+    border: 0;
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
+}
+
+.auth-card.wide {
+    max-width: 720px;
+}
+
+/* Red asterisk on labels of required fields */
+div:has(> [required]) > .form-label::after,
+div:has(> .input-group > [required]) > .form-label::after {
+    content: " *";
+    color: #dc3545;
+}
+
+/* Filter buttons */
+.filter-btn.active {
+    background: var(--brand);
+    border-color: var(--brand);
+    color: #fff;
+}
+
+/* Admin sidebar */
+.admin-nav .nav-link {
+    color: #495057;
+    border-radius: .5rem;
+    margin-bottom: .25rem;
+}
+
+.admin-nav .nav-link.active,
+.admin-nav .nav-link:hover {
+    background: var(--brand);
+    color: #fff;
+}
+
+.table thead th {
+    background: #eef0ff;
+    color: var(--brand-dark);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+footer {
+    background: #1e1b4b;
+    color: #c7c9e8;
+}
+
+.flash-container {
+    position: fixed;
+    top: 72px;
+    right: 1rem;
+    z-index: 1080;
+    max-width: 380px;
+}
+
+@media print {
+    nav, footer, .no-print, .flash-container {
+        display: none !important;
+    }
+}
