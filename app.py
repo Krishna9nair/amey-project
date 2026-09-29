@@ -41,7 +41,7 @@ DEPARTMENTS = [
 ]
 YEARS = ["First Year", "Second Year", "Third Year", "Final Year"]
 ALLOWED_EMAIL_DOMAIN = "student.mes.ac.in"
-HOME_ENDPOINTS = {"admin": "admin_dashboard", "club_admin": "club_admin_dashboard", "student": "dashboard"}
+HOME_ENDPOINTS = {"admin": "admin_dashboard", "club_admin": "club_admin_dashboard", "student": "profile"}
 ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "admin@mes.ac.in")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
 DEFAULT_CLUB_ADMIN_PASSWORD = os.environ.get("CLUB_ADMIN_PASSWORD", "club123")
@@ -490,24 +490,33 @@ def cancel_registration(event_id):
 # ---------------------------------------------------------------- student dashboard
 
 @app.route("/dashboard")
+@app.route("/profile")
 @login_required
-def dashboard():
+def profile():
     if g.user["role"] != "student":
         return redirect(url_for(HOME_ENDPOINTS[g.user["role"]]))
     db = get_db()
     memberships = db.execute(
-        """SELECT m.*, c.name, c.category FROM memberships m
+        """SELECT m.*, c.name, c.category, c.coordinator FROM memberships m
            JOIN clubs c ON c.id = m.club_id
            WHERE m.user_id = ? ORDER BY m.joined_at DESC""",
         (g.user["id"],),
     ).fetchall()
     registrations = db.execute(
-        """SELECT r.registered_at, e.* FROM registrations r
+        """SELECT r.registered_at, e.*, c.name AS club_name FROM registrations r
            JOIN events e ON e.id = r.event_id
+           LEFT JOIN clubs c ON c.id = e.club_id
            WHERE r.user_id = ? ORDER BY e.event_date, e.event_time""",
         (g.user["id"],),
     ).fetchall()
-    return render_template("dashboard.html", memberships=memberships, registrations=registrations)
+    today = date.today().isoformat()
+    return render_template(
+        "profile.html",
+        clubs_joined=[m for m in memberships if m["status"] == "approved"],
+        club_requests=[m for m in memberships if m["status"] != "approved"],
+        upcoming=[r for r in registrations if r["event_date"] >= today],
+        participated=[r for r in registrations if r["event_date"] < today][::-1],
+    )
 
 
 # ---------------------------------------------------------------- shared by admin & club admin portals

@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% from "_macros.html" import date_badge, status_badge %}
+{% block title %}My Profile{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div class="container d-flex align-items-center gap-3">
+        <span class="club-icon fs-3" style="background: rgba(255,255,255,.2)">{{ user.name[0]|upper }}</span>
+        <div>
+            <h1 class="h2 fw-bold mb-0">{{ user.name }}</h1>
+            <span class="opacity-75">{{ user.email }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card hover-card mb-4">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-person-vcard text-brand"></i> My Details</h5>
+                    <dl class="row mb-0 small">
+                        <dt class="col-5 text-muted fw-normal">Roll Number</dt><dd class="col-7 fw-semibold">{{ user.roll_no }}</dd>
+                        <dt class="col-5 text-muted fw-normal">Department</dt><dd class="col-7 fw-semibold">{{ user.department }}</dd>
+                        <dt class="col-5 text-muted fw-normal">Year</dt><dd class="col-7 fw-semibold">{{ user.year }}</dd>
+                        <dt class="col-5 text-muted fw-normal">Phone</dt><dd class="col-7 fw-semibold">{{ user.phone }}</dd>
+                        <dt class="col-5 text-muted fw-normal">Email</dt><dd class="col-7 fw-semibold text-break">{{ user.email }}</dd>
+                        <dt class="col-5 text-muted fw-normal">Member since</dt><dd class="col-7 fw-semibold mb-0">{{ user.created_at[:10]|fmt_date }}</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                {% for label, value, icon in [
+                    ('Clubs', clubs_joined|length, 'people-fill'),
+                    ('Upcoming', upcoming|length, 'calendar-event-fill'),
+                    ('Participated', participated|length, 'award-fill'),
+                ] %}
+                <div class="col-4">
+                    <div class="card stat-card text-center">
+                        <div class="card-body px-1 py-3">
+                            <i class="bi bi-{{ icon }} text-brand fs-4"></i>
+                            <div class="fs-4 fw-bold">{{ value }}</div>
+                            <div class="small text-muted">{{ label }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card hover-card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0"><i class="bi bi-people text-brand"></i> My Clubs</h5>
+                        <a href="{{ url_for('clubs') }}" class="btn btn-sm btn-outline-secondary no-print">Browse Clubs</a>
+                    </div>
+                    <div class="row g-3">
+                        {% for m in clubs_joined %}
+                        <div class="col-md-6">
+                            <a href="{{ url_for('club_detail', club_id=m.club_id) }}" class="text-decoration-none text-reset">
+                                <div class="d-flex gap-3 align-items-center border rounded-3 p-2">
+                                    <span class="club-icon flex-shrink-0" style="width:44px;height:44px;font-size:1.2rem"><i class="bi bi-{{ category_icons.get(m.category, 'star') }}"></i></span>
+                                    <div>
+                                        <div class="fw-semibold">{{ m.name }}</div>
+                                        <div class="small text-muted">{{ m.category }} &middot; joined {{ m.joined_at[:10]|fmt_date }}</div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        {% else %}
+                        <p class="text-muted mb-0">You're not a member of any club yet.</p>
+                        {% endfor %}
+                    </div>
+                    {% if club_requests %}
+                    <h6 class="fw-bold mt-4 mb-2 small text-uppercase text-muted">Membership Requests</h6>
+                    {% for m in club_requests %}
+                    <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                        <a href="{{ url_for('club_detail', club_id=m.club_id) }}" class="text-decoration-none text-reset">{{ m.name }}</a>
+                        {{ status_badge(m.status) }}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card hover-card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0"><i class="bi bi-calendar-event text-brand"></i> Upcoming Events</h5>
+                        <a href="{{ url_for('events') }}" class="btn btn-sm btn-outline-secondary no-print">Find Events</a>
+                    </div>
+                    {% for e in upcoming %}
+                    <div class="d-flex gap-3 align-items-center border-bottom py-2">
+                        {{ date_badge(e.event_date) }}
+                        <div class="flex-grow-1">
+                            <a href="{{ url_for('event_detail', event_id=e.id) }}" class="fw-semibold text-decoration-none text-reset">{{ e.title }}</a>
+                            <div class="small text-muted">{{ e.fest_name }} &middot; {{ e.venue }} &middot; {{ e.event_time|fmt_time }}</div>
+                        </div>
+                        <form method="post" action="{{ url_for('cancel_registration', event_id=e.id) }}" data-confirm="Cancel registration for {{ e.title }}?" class="no-print">
+                            <button class="btn btn-sm btn-outline-danger" title="Cancel registration"><i class="bi bi-x-lg"></i></button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">No upcoming events. <a href="{{ url_for('events') }}" class="text-brand">Register for one</a></p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="card hover-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0"><i class="bi bi-award text-brand"></i> Events Participated</h5>
+                        <button onclick="window.print()" class="btn btn-sm btn-outline-secondary no-print"><i class="bi bi-printer"></i> Print</button>
+                    </div>
+                    {% for e in participated %}
+                    <div class="d-flex gap-3 align-items-center border-bottom py-2">
+                        {{ date_badge(e.event_date) }}
+                        <div class="flex-grow-1">
+                            <a href="{{ url_for('event_detail', event_id=e.id) }}" class="fw-semibold text-decoration-none text-reset">{{ e.title }}</a>
+                            <div class="small text-muted">{{ e.fest_name }}{% if e.club_name %} &middot; {{ e.club_name }}{% endif %} &middot; {{ e.venue }}</div>
+                        </div>
+                        <span class="badge text-bg-success"><i class="bi bi-check-circle"></i> Participated</span>
+                    </div>
+                    {% else %}
+                    <p class="text-muted mb-0">Events you take part in will appear here after they happen.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
