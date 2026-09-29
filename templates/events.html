@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% from "_macros.html" import date_badge %}
+{% block title %}Fest Events{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="h2 fw-bold mb-1"><i class="bi bi-calendar-event-fill"></i> Fest Events</h1>
+        <p class="mb-0 opacity-75">Register for competitions and performances across all college fests</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row g-3 align-items-center mb-4">
+        <div class="col-md-5">
+            <div class="input-group">
+                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                <input type="text" id="liveSearch" class="form-control" placeholder="Search events, venues, clubs...">
+            </div>
+        </div>
+        <div class="col-md-7 d-flex flex-wrap gap-2 justify-content-md-end">
+            <a href="{{ url_for('events') }}" class="btn btn-sm btn-outline-secondary filter-link {% if not current_fest %}active btn-brand text-white{% endif %}">All Fests</a>
+            {% for f in fests %}
+            <a href="{{ url_for('events', fest=f) }}" class="btn btn-sm btn-outline-secondary {% if current_fest == f %}active btn-brand text-white{% endif %}">{{ f }}</a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for e in events %}
+        {% set seats_left = e.max_participants - e.reg_count %}
+        {% set pct = (e.reg_count * 100 / e.max_participants)|round|int %}
+        {% set closed = e.event_date < today %}
+        <div class="col-md-6 col-lg-4 searchable-item" data-search="{{ e.title }} {{ e.venue }} {{ e.club_name or '' }} {{ e.fest_name }}" data-category="all">
+            <div class="card hover-card h-100 {% if closed %}opacity-75{% endif %}">
+                <div class="card-body">
+                    <div class="d-flex gap-3 mb-3">
+                        {{ date_badge(e.event_date) }}
+                        <div>
+                            <span class="badge text-bg-light border">{{ e.fest_name }}</span>
+                            <h5 class="mt-1 mb-0">{{ e.title }}</h5>
+                            {% if e.club_name %}<small class="text-muted">by {{ e.club_name }}</small>{% endif %}
+                        </div>
+                    </div>
+                    <p class="small text-muted mb-2">
+                        <i class="bi bi-geo-alt"></i> {{ e.venue }} &middot; <i class="bi bi-clock"></i> {{ e.event_time|fmt_time }}
+                    </p>
+                    <p class="mb-3">{{ e.description[:100] }}{% if e.description|length > 100 %}...{% endif %}</p>
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span>{{ e.reg_count }} / {{ e.max_participants }} registered</span>
+                        <span class="fw-semibold">{{ seats_left if seats_left > 0 else 0 }} seats left</span>
+                    </div>
+                    <div class="progress seat-progress">
+                        <div class="progress-bar {% if pct >= 90 %}bg-danger{% elif pct >= 60 %}bg-warning{% else %}bg-success{% endif %}" style="width: {{ pct }}%"></div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0 pb-3 d-flex gap-2">
+                    <a href="{{ url_for('event_detail', event_id=e.id) }}" class="btn btn-outline-secondary btn-sm">Details</a>
+                    {% if e.id in registered %}
+                        <span class="badge text-bg-success align-self-center"><i class="bi bi-check-circle"></i> Registered</span>
+                    {% elif closed %}
+                        <span class="badge text-bg-secondary align-self-center">Closed</span>
+                    {% elif seats_left <= 0 %}
+                        <span class="badge text-bg-danger align-self-center">Full</span>
+                    {% elif user and user.role == 'student' %}
+                        <form method="post" action="{{ url_for('register_event', event_id=e.id) }}">
+                            <button class="btn btn-brand btn-sm">Register Now</button>
+                        </form>
+                    {% elif not user %}
+                        <a href="{{ url_for('login', next=url_for('events')) }}" class="btn btn-brand btn-sm">Login to Register</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <p class="text-muted">No events found.</p>
+        {% endfor %}
+    </div>
+    <p id="noResults" class="text-center text-muted py-5 d-none">No events match your search.</p>
+</div>
+{% endblock %}

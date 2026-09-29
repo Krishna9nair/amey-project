@@ -1,0 +1,40 @@
+{% extends "admin/layout.html" %}
+{% block title %}Manage Clubs{% endblock %}
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">Manage Clubs</h2>
+    <a href="{{ url_for('admin_club_form') }}" class="btn btn-brand"><i class="bi bi-plus-lg"></i> Add Club</a>
+</div>
+
+<div class="card hover-card">
+    <div class="card-body table-responsive">
+        <table class="table align-middle">
+            <thead><tr><th>Club</th><th>Category</th><th>Coordinator</th><th>Club Admin</th><th>Members</th><th>Events</th><th class="text-end">Actions</th></tr></thead>
+            <tbody>
+            {% for c in clubs %}
+                <tr>
+                    <td><a href="{{ url_for('club_detail', club_id=c.id) }}" class="fw-semibold text-decoration-none text-reset">{{ c.name }}</a></td>
+                    <td><span class="badge text-bg-light border">{{ c.category }}</span></td>
+                    <td>{{ c.coordinator or '-' }}<div class="small text-muted">{{ c.contact_email or '' }}</div></td>
+                    <td class="small">
+                        {% if c.admin_emails %}{{ c.admin_emails }}
+                        {% else %}<a href="{{ url_for('admin_club_admins', club_id=c.id) }}" class="text-brand">+ Add admin</a>{% endif %}
+                    </td>
+                    <td>{{ c.member_count }}</td>
+                    <td>{{ c.event_count }}</td>
+                    <td class="text-end text-nowrap">
+                        <a href="{{ url_for('admin_club_form', club_id=c.id) }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                        <form method="post" action="{{ url_for('admin_delete_club', club_id=c.id) }}" class="d-inline"
+                              data-confirm="Delete {{ c.name }}? All its memberships will also be removed.">
+                            <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr><td colspan="7" class="text-center text-muted py-4">No clubs yet</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% from "_macros.html" import date_badge, status_badge %}
+{% block title %}My Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+    <div class="container">
+        <h1 class="h2 fw-bold mb-1">Hello, {{ user.name }}</h1>
+        <p class="mb-0 opacity-75">{{ user.roll_no }} &middot; {{ user.department }} &middot; {{ user.year }}</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card stat-card"><div class="card-body d-flex gap-3 align-items-center">
+                <span class="stat-icon"><i class="bi bi-people-fill"></i></span>
+                <div><div class="fs-3 fw-bold">{{ memberships|selectattr('status', 'equalto', 'approved')|list|length }}</div><div class="small text-muted">Clubs Joined</div></div>
+            </div></div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card"><div class="card-body d-flex gap-3 align-items-center">
+                <span class="stat-icon"><i class="bi bi-ticket-perforated-fill"></i></span>
+                <div><div class="fs-3 fw-bold">{{ registrations|length }}</div><div class="small text-muted">Events Registered</div></div>
+            </div></div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card"><div class="card-body d-flex gap-3 align-items-center">
+                <span class="stat-icon"><i class="bi bi-hourglass-split"></i></span>
+                <div><div class="fs-3 fw-bold">{{ memberships|selectattr('status', 'equalto', 'pending')|list|length }}</div><div class="small text-muted">Pending Requests</div></div>
+            </div></div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-5">
+            <div class="card hover-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">My Clubs</h5>
+                        <a href="{{ url_for('clubs') }}" class="btn btn-sm btn-outline-secondary">Browse</a>
+                    </div>
+                    {% for m in memberships %}
+                    <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                        <div>
+                            <a href="{{ url_for('club_detail', club_id=m.club_id) }}" class="fw-semibold text-decoration-none text-reset">{{ m.name }}</a>
+                            <div class="small text-muted">{{ m.category }}</div>
+                        </div>
+                        {{ status_badge(m.status) }}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">You haven't joined any clubs yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card hover-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-bold mb-0">My Event Registrations</h5>
+                        <button onclick="window.print()" class="btn btn-sm btn-outline-secondary no-print"><i class="bi bi-printer"></i> Print</button>
+                    </div>
+                    {% for e in registrations %}
+                    <div class="d-flex gap-3 align-items-center border-bottom py-2">
+                        {{ date_badge(e.event_date) }}
+                        <div class="flex-grow-1">
+                            <a href="{{ url_for('event_detail', event_id=e.id) }}" class="fw-semibold text-decoration-none text-reset">{{ e.title }}</a>
+                            <div class="small text-muted">{{ e.fest_name }} &middot; {{ e.venue }} &middot; {{ e.event_time|fmt_time }}</div>
+                        </div>
+                        {% if e.event_date >= today %}
+                        <form method="post" action="{{ url_for('cancel_registration', event_id=e.id) }}" data-confirm="Cancel registration for {{ e.title }}?" class="no-print">
+                            <button class="btn btn-sm btn-outline-danger" title="Cancel"><i class="bi bi-x-lg"></i></button>
+                        </form>
+                        {% else %}
+                        <span class="badge text-bg-secondary">Completed</span>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No registrations yet. <a href="{{ url_for('events') }}" class="text-brand">Find an event</a></p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

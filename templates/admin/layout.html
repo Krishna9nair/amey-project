@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row g-4">
+        <aside class="col-lg-2 no-print">
+            <div class="card hover-card">
+                <div class="card-body">
+                    <h6 class="text-uppercase text-muted small fw-bold mb-3">Admin Panel</h6>
+                    <nav class="nav flex-column admin-nav">
+                        {% set links = [
+                            ('admin_dashboard', 'speedometer2', 'Dashboard'),
+                            ('admin_memberships', 'person-check', 'Memberships'),
+                            ('admin_clubs', 'people', 'Clubs'),
+                            ('admin_club_admins', 'person-gear', 'Club Admins'),
+                            ('admin_events', 'calendar-event', 'Events'),
+                            ('admin_students', 'mortarboard', 'Students'),
+                        ] %}
+                        {% for endpoint, icon, label in links %}
+                        <a class="nav-link {% if request.endpoint == endpoint or (active_section is defined and active_section == endpoint) %}active{% endif %}" href="{{ url_for(endpoint) }}">
+                            <i class="bi bi-{{ icon }} me-1"></i> {{ label }}
+                        </a>
+                        {% endfor %}
+                    </nav>
+                </div>
+            </div>
+        </aside>
+        <div class="col-lg-10">
+            {% block admin_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}
